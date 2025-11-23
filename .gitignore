@@ -1,55 +1,92 @@
-# Prerequisites
-*.d
+### Visual Studio / C# project ignore file
+# Source: https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
-# Object files
-*.o
-*.ko
-*.obj
-*.elf
+## Build and Debugging
+######################################
+# Build results
+[Dd]ebug/
+[Rr]elease/
+[Bb]in/
+[Oo]bj/
+[Oo]ut/
+build/
+Build/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
 
-# Linker output
-*.ilk
-*.map
-*.exp
+# VS Code directory for workspace settings
+.vscode/
 
-# Precompiled Headers
-*.gch
-*.pch
+## Packages and Dependencies
+######################################
+# NuGet packages
+*.nupkg
+# The directory for NuGet packages (usually restored by 'dotnet restore')
+[Pp]ackages/
+# Publish directory
+publish/
 
-# Libraries
-*.lib
-*.a
-*.la
-*.lo
+# Rider's private solution user files
+.idea/
 
-# Shared objects (inc. Windows DLLs)
-*.dll
-*.so
-*.so.*
-*.dylib
+## Testing
+######################################
+TestResults/
+.trx
 
-# Executables
-*.exe
-*.out
-*.app
-*.i*86
-*.x86_64
-*.hex
+## Logs and Traces
+######################################
+*.log
+*.pfx
+*.vspscc
+*.vssscc
+*.bak
+*.vsw
+*Cache*
+ClientBin/
+[Ss]ource/[Cc]ontrol/
+[Bb]uild[Ee]ngine/
+InstallSource/
+[Mm]isc/
+[._]*
 
-# Debug files
-*.dSYM/
-*.su
-*.idb
-*.pdb
+## Visual Studio specific files
+######################################
+# Visual Studio project files (except .sln and .csproj)
+*.vsp
+*.vsa
+*.vssscc
 
-# Kernel Module Compile Results
-*.mod*
-*.cmd
-.tmp_versions/
-modules.order
-Module.symvers
-Mkfile.old
-dkms.conf
+# User files and IDE generated files
+*.resharper
+*.dotSettings
+*.pidb
+*.booproj
+*.sln.ide
+*.cache
+*.sdf
+*.opensdf
 
-# debug information files
-*.dwo
+# Resharper/dotCover/dotTrace files
+*.dotCover
+*.dotCover.user
+*.dotTrace
+*.dotTrace.user
+
+## Cross-Platform / .NET Core Specific
+######################################
+# Core artifacts (often used in dotnet publish)
+runtimes/
+
+# Linux/macOS style dot files
+.DS_Store
+
+# Temporary files created by ASP.NET Core
+**/*.tmp
+**/*.temp
+
+# Dependency Manager files
+bower_components/
+node_modules/
