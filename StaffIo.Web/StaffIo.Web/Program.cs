@@ -1,5 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using StaffIo.Data;
+using StaffIo.IService;
+using StaffIo.Service;
+using StaffIo.Service.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,17 +13,24 @@ IConfiguration configuration = new ConfigurationBuilder()
     .Build();
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.Configure<JwtOptions>(configuration.GetSection(nameof(JwtOptions)));
+
+builder.Services.AddTransient<IJwtInternalService, JwtInternalService>();
+builder.Services.AddTransient<StaffIo.IService.IAuthorizationService, AuthorizationService>();
+
+builder.Services.AddHttpContextAccessor();
 
 var connectionString = configuration.GetSection(nameof(DataContext)).Get<string>();
 
 builder.Services.AddDbContext<DataContext>(options => options.UseSqlServer(connectionString));
 
+
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

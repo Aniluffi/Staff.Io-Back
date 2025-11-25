@@ -27,6 +27,8 @@ namespace StaffIo.Data.Models
         /// </summary>
         public DateTime DateCreated { get; set; } = DateTime.UtcNow;
 
+        public string FotoUrl { get; set; }
+
         public Guid UserId { get; set; }
 
         public User User { get; set; }

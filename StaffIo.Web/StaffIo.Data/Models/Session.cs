@@ -13,7 +13,7 @@
         /// <summary>
         /// Токен сессии
         /// </summary>
-        public string SessionToken { get; set; }
+        public string? SessionToken { get; set; }
 
         public Guid UserId { get; set; }
 

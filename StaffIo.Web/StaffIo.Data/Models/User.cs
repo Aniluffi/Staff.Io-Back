@@ -25,7 +25,7 @@ namespace StaffIo.Data.Models
         /// <summary>
         /// Отчество пользователя
         /// </summary>
-        public string LastName { get; set; }
+        public string? LastName { get; set; }
 
         /// <summary>
         /// Дата создания пользователя
@@ -40,12 +40,12 @@ namespace StaffIo.Data.Models
         /// <summary>
         /// Статус пользователя
         /// </summary>
-        public EnumUserStatus Status { get; set; }
+        public EnumUserStatus? Status { get; set; }
 
         /// <summary>
         /// Должность пользователя
         /// </summary>
-        public string Position { get; set; }
+        public string? Position { get; set; }
 
         /// <summary>
         /// Зарплата пользователя
@@ -55,7 +55,7 @@ namespace StaffIo.Data.Models
         /// <summary>
         /// Работает ли пользователь сегодня
         /// </summary>
-        public bool ToDayWork { get; set; }
+        public bool? ToDayWork { get; set; }
 
         /// <summary>
         /// Рабочий график пользователя
@@ -76,9 +76,9 @@ namespace StaffIo.Data.Models
 
         public Session Session { get; set; }
 
-        public List<User> Deportament { get; set; }
+        public List<User>? Deportament { get; set; }
 
-        public Guid OwnerId { get; set; }
+        public Guid? OwnerId { get; set; }
 
         public User Owner { get; set; }
     }
