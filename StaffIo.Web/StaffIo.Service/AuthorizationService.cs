@@ -164,6 +164,7 @@ namespace StaffIo.Service
             if (model.UserRole == EnumUserRole.Admin)
             {
                 newUser.OwnerId = currentUserId;
+                newUser.Status = EnumUserStatus.Active;
             }
 
             await db.Users.AddAsync(newUser);

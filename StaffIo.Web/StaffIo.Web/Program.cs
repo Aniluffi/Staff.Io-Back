@@ -20,6 +20,7 @@ builder.Services.Configure<JwtOptions>(configuration.GetSection(nameof(JwtOption
 
 builder.Services.AddTransient<IJwtInternalService, JwtInternalService>();
 builder.Services.AddTransient<StaffIo.IService.IAuthorizationService, AuthorizationService>();
+builder.Services.AddTransient<StaffIo.IService.IExpensesService, ExpensesService>();
 
 builder.Services.AddHttpContextAccessor();
 
