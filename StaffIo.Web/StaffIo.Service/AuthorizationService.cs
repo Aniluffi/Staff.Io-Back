@@ -4,6 +4,7 @@ using StaffIo.Data.Enums;
 using StaffIo.Data.Models;
 using StaffIo.IService;
 using StaffIo.IService.Models.AuthorizationService.Request;
+using StaffIo.Service.Common;
 
 namespace StaffIo.Service
 {
@@ -62,7 +63,7 @@ namespace StaffIo.Service
             await using var db = new DataContext(_options);
 
             var userAccount = await db.Accounts
-                .FirstOrDefaultAsync(a => a.Login == request.Login && a.PasswordHash == request.Password);
+                .FirstOrDefaultAsync(a => a.Login == request.Login && a.PasswordHash == request.Password.ToSha256Hash());
 
             if (userAccount == null)
                 throw new Exception("Неверный логин или пароль");
@@ -148,7 +149,7 @@ namespace StaffIo.Service
                 Account = new Account
                 {
                     Login = model.Login,
-                    PasswordHash = model.Password,
+                    PasswordHash = model.Password.ToSha256Hash(),
                 },  
                 Session = new Session
                 {
