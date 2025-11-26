@@ -32,7 +32,8 @@ namespace StaffIo.Web.Controllers
 
             var registr = await _authorizationService.Registration(request,UserId);
 
-            AddToken(registr);
+            if(request.UserRole != EnumUserRole.Admin) 
+                AddToken(registr);
 
             return true;
         }

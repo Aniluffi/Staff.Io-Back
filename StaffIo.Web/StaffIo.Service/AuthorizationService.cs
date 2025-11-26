@@ -16,7 +16,7 @@ namespace StaffIo.Service
         private DbContextOptions<DataContext> _options;
         private IJwtInternalService _jwtInternalService;
 
-        public AuthorizationService(DbContextOptions<DataContext> options,IJwtInternalService jwtInternalService)
+        public AuthorizationService(DbContextOptions<DataContext> options, IJwtInternalService jwtInternalService)
         {
             _jwtInternalService = jwtInternalService;
             _options = options;
@@ -130,11 +130,14 @@ namespace StaffIo.Service
             if (isHaveAccount)
                 throw new Exception("Аккаунт с таким логином уже существует");
 
-            var checkRoleOwner = await db.Users
-                .AnyAsync(u => u.Id == currentUserId && u.TypeRole == EnumUserRole.Owner);
+            if (currentUserId != null)
+            {
+                var checkRoleOwner = await db.Users
+                    .AnyAsync(u => u.Id == currentUserId && u.TypeRole == EnumUserRole.Owner);
 
-            if(!checkRoleOwner)
-                throw new Exception("Для регистрации пользователя с ролью Admin необходимо авторизоваться как пользователь с ролью Owner.");
+                if (!checkRoleOwner)
+                    throw new Exception("Для регистрации пользователя с ролью Admin необходимо авторизоваться как пользователь с ролью Owner.");
+            }
 
             var userId = Guid.NewGuid();
 
@@ -150,7 +153,7 @@ namespace StaffIo.Service
                 {
                     Login = model.Login,
                     PasswordHash = model.Password.ToSha256Hash(),
-                },  
+                },
                 Session = new Session
                 {
                     SessionToken = sessionToken,
@@ -158,7 +161,7 @@ namespace StaffIo.Service
                 TypeRole = model.UserRole
             };
 
-            if(model.UserRole == EnumUserRole.Admin)
+            if (model.UserRole == EnumUserRole.Admin)
             {
                 newUser.OwnerId = currentUserId;
             }
