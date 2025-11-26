@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using StaffIo.Data.Enums;
 using StaffIo.IService;
 using StaffIo.IService.Models.AuthorizationService.Request;
 using StaffIo.Service;
@@ -24,10 +25,12 @@ namespace StaffIo.Web.Controllers
         [HttpPost("Registration")]
         public async Task<bool> Registration(AuthorizationRegistrationRequest request)
         {
-            if(UserId.HasValue)
+            if(UserId.HasValue && request.UserRole == EnumUserRole.Owner)
                 throw new Exception("Пользователь уже находится в сессии.");
+            else if(!UserId.HasValue && request.UserRole == EnumUserRole.Admin)
+                throw new Exception("Для регистрации пользователя с ролью Admin необходимо авторизоваться как пользователь с ролью Owner.");
 
-            var registr = await _authorizationService.Registration(request);
+            var registr = await _authorizationService.Registration(request,UserId);
 
             AddToken(registr);
 

@@ -11,7 +11,7 @@ namespace StaffIo.IService
         /// метод для регистрации аккаунта
         /// </summary>
         /// <returns></returns>
-        Task<string> Registration(AuthorizationRegistrationRequest request);
+        Task<string> Registration(AuthorizationRegistrationRequest request,Guid? currentUserId);
 
         /// <summary>
         /// метод для выхода из сессии

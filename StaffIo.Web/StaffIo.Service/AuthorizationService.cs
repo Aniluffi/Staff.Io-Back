@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using StaffIo.Data;
+using StaffIo.Data.Enums;
 using StaffIo.Data.Models;
 using StaffIo.IService;
 using StaffIo.IService.Models.AuthorizationService.Request;
@@ -116,7 +117,7 @@ namespace StaffIo.Service
         /// метод для регистрации аккаунта
         /// </summary>
         /// <returns></returns>
-        public async Task<string> Registration(AuthorizationRegistrationRequest model)
+        public async Task<string> Registration(AuthorizationRegistrationRequest model, Guid? currentUserId)
         {
             await using var db = new DataContext(_options);
 
@@ -127,6 +128,12 @@ namespace StaffIo.Service
 
             if (isHaveAccount)
                 throw new Exception("Аккаунт с таким логином уже существует");
+
+            var checkRoleOwner = await db.Users
+                .AnyAsync(u => u.Id == currentUserId && u.TypeRole == EnumUserRole.Owner);
+
+            if(!checkRoleOwner)
+                throw new Exception("Для регистрации пользователя с ролью Admin необходимо авторизоваться как пользователь с ролью Owner.");
 
             var userId = Guid.NewGuid();
 
@@ -149,6 +156,11 @@ namespace StaffIo.Service
                 },
                 TypeRole = model.UserRole
             };
+
+            if(model.UserRole == EnumUserRole.Admin)
+            {
+                newUser.OwnerId = currentUserId;
+            }
 
             await db.Users.AddAsync(newUser);
 
