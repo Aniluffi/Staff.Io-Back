@@ -59,20 +59,20 @@ namespace StaffIo.Data.Migrations
                 oldClrType: typeof(string),
                 oldType: "nvarchar(max)");
 
-            migrationBuilder.AddColumn<string>(
-                name: "FotoUrl",
-                table: "Fotos",
-                type: "nvarchar(max)",
-                nullable: false,
-                defaultValue: "");
+            //migrationBuilder.AddColumn<string>(
+            //    name: "FotoUrl",
+            //    table: "Fotos",
+            //    type: "nvarchar(max)",
+            //    nullable: false,
+            //    defaultValue: "");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
-                name: "FotoUrl",
-                table: "Fotos");
+            //migrationBuilder.DropColumn(
+            //    name: "FotoUrl",
+            //    table: "Fotos");
 
             migrationBuilder.AlterColumn<bool>(
                 name: "ToDayWork",

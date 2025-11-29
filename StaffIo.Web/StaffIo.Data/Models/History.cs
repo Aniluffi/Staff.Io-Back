@@ -31,5 +31,10 @@ namespace StaffIo.Data.Models
         /// Дата создания
         /// </summary>
         public DateTime DateCreated { get; set; } = DateTime.UtcNow;
+
+        /// <summary>
+        /// Значение(хранится json)
+        /// </summary>
+        public string? Value { get; set; }
     }
 }

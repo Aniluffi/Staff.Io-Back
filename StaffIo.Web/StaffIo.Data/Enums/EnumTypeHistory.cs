@@ -42,8 +42,12 @@
         /// </summary>
         ChangeFotoDocuments = 9,
         /// <summary>
-        /// Изменение статуса сотрудника
+        /// увольнение сотрудника
         /// </summary>
-        ChangeStatus = 10
+        Deleted = 10,
+        /// <summary>
+        /// Добавление сотрудника
+        /// </summary>
+        Add = 11,
     }
 }
