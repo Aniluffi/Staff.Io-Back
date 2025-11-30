@@ -220,6 +220,8 @@ namespace StaffIo.Service
 
             var getDocuments = await db.Fotos.Where(c => c.TypeFoto == EnumTypeFoto.Document).ToListAsync();
 
+            var files = new List<Foto>();
+
             if (request.Documents.Count > 0)
             {
                 foreach (var document in getDocuments)
@@ -235,7 +237,6 @@ namespace StaffIo.Service
 
                 db.Fotos.RemoveRange(getDocuments);
 
-                var files = new List<Foto>();
 
 
                 foreach (var document in request.Documents)
