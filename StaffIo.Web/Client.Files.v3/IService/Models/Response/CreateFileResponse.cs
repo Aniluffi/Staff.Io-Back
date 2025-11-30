@@ -12,5 +12,14 @@ namespace Client.Files.IService.Models.Response
         public string id { get; set; }
         public string name { get; set; }
         public string mimeType { get; set; }
+
+        /// <summary>
+        /// сыылка для скачивания
+        /// </summary>
+        public string webContentLink { get; set; }
+        /// <summary>
+        /// сылка для просмотра
+        /// </summary>
+        public string webViewLink { get; set; }
     }
 }

@@ -7,7 +7,7 @@ namespace Http.Client.Extensions
     {
         public static void AddHttpClient(this IServiceCollection serviceCollection)
         {
-            serviceCollection.AddTransient<IHttpClient, Http.Client.Service.HttpClient>();
+            //serviceCollection.AddTransient<IHttpClient, Http.Client.Service.HttpClient>();
         }
     }
 }

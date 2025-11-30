@@ -45,7 +45,7 @@ namespace StaffIo.Service
                 throw new Exception("Пользователь не найден");
 
             var getFotoUrl = await db.Fotos
-                .Where(uf => uf.UserId == currentUserId)
+                .Where(uf => uf.UserId == currentUserId && uf.TypeFoto == EnumTypeFoto.Profile)
                 .Select(uf => uf.FotoUrl)
                 .FirstOrDefaultAsync();
 
@@ -165,6 +165,7 @@ namespace StaffIo.Service
             {
                 newUser.OwnerId = currentUserId;
                 newUser.Status = EnumUserStatus.Active;
+                newUser.AccessCanManage = false;
             }
 
             await db.Users.AddAsync(newUser);

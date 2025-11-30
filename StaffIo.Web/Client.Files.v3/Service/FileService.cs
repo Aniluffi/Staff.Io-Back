@@ -47,7 +47,7 @@ namespace Client.Files.Service
         {
             await OnClient();
 
-            var response = await _httpClientUpload.SendAsync<CreateFileResponse, object>(@"/files?uploadType=multipart", HttpMethod.Post, new
+            var response = await _httpClientUpload.SendAsync<CreateFileResponse, object>(@"/files?fields=id,name,mimeType,webViewLink,webContentLink", HttpMethod.Post, new
             {
                 name = request.name ?? "" + Guid.NewGuid().ToString(),
                 request.mimeType,

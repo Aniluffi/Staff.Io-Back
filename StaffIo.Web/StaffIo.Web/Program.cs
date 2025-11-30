@@ -1,3 +1,4 @@
+using Client.Files.Extensions;
 using Microsoft.EntityFrameworkCore;
 using StaffIo.Data;
 using StaffIo.IService;
@@ -47,6 +48,10 @@ builder.Services.AddTransient<StaffIo.IService.IAuthorizationService, Authorizat
 builder.Services.AddTransient<StaffIo.IService.IExpensesService, ExpensesService>();
 builder.Services.AddTransient<StaffIo.IService.IAnalyticsService, AnalyticsService>();
 builder.Services.AddTransient<IEmployeesService,EmployeesService>();
+
+builder.Services.AddTransient<IAdminService, AdminService>();
+
+builder.Services.AddFileService(configuration);
 
 builder.Services.AddHttpContextAccessor();
 
