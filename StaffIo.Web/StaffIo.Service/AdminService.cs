@@ -1,7 +1,9 @@
 ﻿using Client.Files.IService;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using StaffIo.Data;
 using StaffIo.Data.Enums;
+using StaffIo.Data.JsonModels;
 using StaffIo.Data.Models;
 using StaffIo.IService;
 using StaffIo.IService.Models.AdminService.Request;
@@ -52,6 +54,11 @@ namespace StaffIo.Service
             {
                 user.DateDeleted = DateTime.UtcNow;
                 user.Status = Data.Enums.EnumUserStatus.Deactivated;
+
+                await AddHistory(db, EnumTypeHistory.Deleted, new JsonHistoryValue
+                {
+                    Value = null
+                }, user.Id, currentUserId);
             }
             else
             {
@@ -105,9 +112,11 @@ namespace StaffIo.Service
 
             if (!request.UserId.HasValue)
             {
-                await db.Users.AddAsync(new User
+                var userId = Guid.NewGuid();
+
+                await db.Users.AddAsync(new Data.Models.User
                 {
-                    Id = Guid.NewGuid(),
+                    Id = userId,
                     OwnerId = currentUserId,
                     TypeRole = EnumUserRole.Employee,
                     Status = EnumUserStatus.Active,
@@ -116,6 +125,11 @@ namespace StaffIo.Service
                     LastName = request.LastName,
                     MiddleName = request.MiddleName,
                 });
+
+                await AddHistory(db, EnumTypeHistory.Add, new JsonHistoryValue
+                {
+                    Value = null
+                }, userId, currentUserId);
             }
             else
             {
@@ -141,6 +155,11 @@ namespace StaffIo.Service
 
                 getAccount.Status = EnumUserStatus.Active;
                 getAccount.DateDeleted = null;
+
+                await AddHistory(db, EnumTypeHistory.Add, new JsonHistoryValue
+                {
+                    Value = null
+                }, getAccount.Id, currentUserId);
             }
 
             await db.SaveChangesAsync();
@@ -176,6 +195,11 @@ namespace StaffIo.Service
 
             admin.AccessCanManage = !admin.AccessCanManage;
 
+            await AddHistory(db, EnumTypeHistory.ChengeAccessCanManage, new JsonHistoryValue
+            {
+                AccessCanManage = !admin.AccessCanManage,
+            }, request.UserId, currentUserId);
+
             await db.SaveChangesAsync();
 
             return new AdminAccessCanManageResponse
@@ -206,16 +230,65 @@ namespace StaffIo.Service
             if (user == null)
                 throw new Exception("Пользователь не найден");
 
-            user.FirstName = request.FirstName;
-            user.LastName = request.LastName;
-            user.MiddleName = request.MiddleName;
-            user.Position = request.Position;
-            user.Salary = request.Salary;
-            user.WorkPlan = request.WorkPlan;
-            user.AccessCanManage = user.TypeRole == EnumUserRole.Admin ? request.AccessCanManage : null;
-            user.Status = request.Status;
-            user.TypeRole = request.TypeRole;
+            if (!string.IsNullOrWhiteSpace(request.FirstName) && user.FirstName != request.FirstName)
+            {
+                user.FirstName = request.FirstName;
 
+                await AddHistory(db, EnumTypeHistory.ChangeFirstName, new JsonHistoryValue
+                {
+                    Value = request.FirstName,
+                }, user.Id, currentUserId);
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.LastName) && user.LastName != request.LastName)
+            {
+                user.LastName = request.LastName;
+
+                await AddHistory(db, EnumTypeHistory.ChangeLastName, new JsonHistoryValue
+                {
+                    Value = request.LastName,
+                }, user.Id, currentUserId);
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.MiddleName) && user.MiddleName != request.MiddleName)
+            {
+                user.MiddleName = request.MiddleName;
+
+                await AddHistory(db, EnumTypeHistory.ChangeMiddleName, new JsonHistoryValue
+                {
+                    Value = request.MiddleName,
+                }, user.Id, currentUserId);
+            }
+
+            if (!string.IsNullOrWhiteSpace(request.Position) && user.Position != request.Position)
+            {
+                user.Position = request.Position;
+
+                await AddHistory(db, EnumTypeHistory.ChangePosition, new JsonHistoryValue
+                {
+                    Value = request.Position,
+                }, user.Id, currentUserId);
+            }
+
+            if (user.Salary != request.Salary)
+            {
+                user.Salary = request.Salary;
+
+                await AddHistory(db, EnumTypeHistory.ChangeSalary, new JsonHistoryValue
+                {
+                    Value = Convert.ToString(request.Salary),
+                }, user.Id, currentUserId);
+            }
+
+            if (request.WorkPlan != null && user.WorkPlan != request.WorkPlan)
+            {
+                user.WorkPlan = request.WorkPlan;
+
+                await AddHistory(db, EnumTypeHistory.ChangeWorkPlan, new JsonHistoryValue
+                {
+                    WorkPlan = request.WorkPlan,
+                }, user.Id, currentUserId);
+            }
             //удаление старых документов и добавление новых
 
             var getDocuments = await db.Fotos.Where(c => c.TypeFoto == EnumTypeFoto.Document).ToListAsync();
@@ -236,8 +309,6 @@ namespace StaffIo.Service
                 }
 
                 db.Fotos.RemoveRange(getDocuments);
-
-
 
                 foreach (var document in request.Documents)
                 {
@@ -262,10 +333,15 @@ namespace StaffIo.Service
                 }
 
                 await db.Fotos.AddRangeAsync(files);
+
+                await AddHistory(db, EnumTypeHistory.ChangeFotoDocuments, new JsonHistoryValue
+                {
+                    Values = files.Select(c => c.FotoUrl).ToList(),
+                }, user.Id, currentUserId);
             }
 
             //удаление старой фотографии пользователя и добавление новой
-            var fotoUrl = await UpdateProfileFoto(db, currentUserId, request.UserFotoUrl);
+            var fotoUrl = await UpdateProfileFoto(db, request.UserId, currentUserId, request.UserFoto);
 
             await db.SaveChangesAsync();
 
@@ -285,6 +361,22 @@ namespace StaffIo.Service
                 TypeRole = user.TypeRole,
             };
         }
+
+        private async Task<bool> AddHistory(DataContext db, EnumTypeHistory typeHistory, JsonHistoryValue historyValue, Guid userId, Guid createdUserId)
+        {
+            await db.Histories.AddAsync(new History
+            {
+                Id = Guid.NewGuid(),
+                UserId = userId,
+                DateCreated = DateTime.UtcNow,
+                CreatedUserId = createdUserId,
+                Type = typeHistory,
+                Value = JsonConvert.SerializeObject(historyValue)
+            });
+
+            return true;
+        }
+
         /// <summary>
         /// Обновить данные владельца
         /// </summary>
@@ -303,7 +395,7 @@ namespace StaffIo.Service
 
             //обновление фотографии владельца
 
-            var fotoUrl = await UpdateProfileFoto(db, currentUserId, request.Foto);
+            var fotoUrl = await UpdateProfileFoto(db, null, currentUserId, request.Foto);
 
             await db.SaveChangesAsync();
 
@@ -318,7 +410,7 @@ namespace StaffIo.Service
         /// 
         /// </summary>
         /// <returns></returns>
-        private async Task<string?> UpdateProfileFoto(DataContext db, Guid userId, string? foto)
+        private async Task<string?> UpdateProfileFoto(DataContext db, Guid? userId, Guid createdUserId, string? foto)
         {
             var getFoto = await db.Fotos.Where(c => c.UserId == userId && c.TypeFoto == EnumTypeFoto.Profile)
                .FirstOrDefaultAsync();
@@ -337,7 +429,7 @@ namespace StaffIo.Service
                 getFoto = new Data.Models.Foto
                 {
                     Id = Guid.NewGuid(),
-                    UserId = userId,
+                    UserId = userId ?? createdUserId,
                     FotoUrl = createFoto.Data!.webViewLink,
                     DateCreated = DateTime.UtcNow,
                     FotoId = createFoto.Data!.id,
@@ -369,6 +461,12 @@ namespace StaffIo.Service
                 if (!update.IsSusses)
                     throw new Exception(update.ErrorMessage);
             }
+
+            if (foto != null && userId.HasValue)
+                await AddHistory(db, EnumTypeHistory.ChangeFotoProfile, new JsonHistoryValue
+                {
+                    Value = foto,
+                }, userId.Value, createdUserId);
 
             return getFoto == null ? null : getFoto.FotoUrl;
         }
@@ -405,6 +503,12 @@ namespace StaffIo.Service
                 throw new Exception("Пользователь не найден");
 
             user.OwnerId = request.OwnerId;
+
+            if (user.OwnerId != request.OwnerId)
+                await AddHistory(db, EnumTypeHistory.ChangeDepartment, new JsonHistoryValue
+                {
+                    Value = request.OwnerId.Value.ToString(),
+                }, user.Id, currentUserId);
 
             await db.SaveChangesAsync();
 

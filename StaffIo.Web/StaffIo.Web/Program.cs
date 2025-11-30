@@ -48,6 +48,7 @@ builder.Services.AddTransient<StaffIo.IService.IAuthorizationService, Authorizat
 builder.Services.AddTransient<StaffIo.IService.IExpensesService, ExpensesService>();
 builder.Services.AddTransient<StaffIo.IService.IAnalyticsService, AnalyticsService>();
 builder.Services.AddTransient<IEmployeesService,EmployeesService>();
+builder.Services.AddTransient<IHistoryService,HistoryService>();
 
 builder.Services.AddTransient<IAdminService, AdminService>();
 

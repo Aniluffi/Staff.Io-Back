@@ -1,4 +1,6 @@
-﻿namespace StaffIo.Data.JsonModels
+﻿using StaffIo.Data.Enums;
+
+namespace StaffIo.Data.JsonModels
 {
     /// <summary>
     /// Значение истории в формате JSON
@@ -14,5 +16,9 @@
         /// список значений
         /// </summary>
         public List<string>? Values { get; set; }
+
+        public EnumWorkPlan? WorkPlan { get; set; }
+
+        public bool? AccessCanManage { get; set; }
     }
 }

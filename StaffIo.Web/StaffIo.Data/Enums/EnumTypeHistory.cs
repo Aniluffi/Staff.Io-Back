@@ -49,5 +49,9 @@
         /// Добавление сотрудника
         /// </summary>
         Add = 11,
+        /// <summary>
+        /// Изменение права на управление
+        /// </summary>
+        ChengeAccessCanManage = 12
     }
 }
