@@ -465,7 +465,7 @@ namespace StaffIo.Service
             if (foto != null && userId.HasValue)
                 await AddHistory(db, EnumTypeHistory.ChangeFotoProfile, new JsonHistoryValue
                 {
-                    Value = foto,
+                    Value = getFoto?.FotoUrl,
                 }, userId.Value, createdUserId);
 
             return getFoto == null ? null : getFoto.FotoUrl;
