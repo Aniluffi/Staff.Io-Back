@@ -1,4 +1,5 @@
 using Client.Files.Extensions;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using StaffIo.Data;
 using StaffIo.IService;
@@ -54,6 +55,17 @@ builder.Services.AddTransient<IAdminService, AdminService>();
 
 builder.Services.AddFileService(configuration);
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("SpecificDomain", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000") // ? твой домен
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials(); // если используешь куки или авторизацию
+    });
+});
+
 builder.Services.AddHttpContextAccessor();
 
 var connectionString = configuration.GetSection(nameof(DataContext)).Get<string>();
@@ -70,10 +82,31 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
+app.UseCors("SpecificDomain");
+
 app.MapControllers();
+
+app.UseExceptionHandler(errorApp =>
+{
+    errorApp.Run(async context =>
+    {
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        context.Response.ContentType = "application/json";
+
+        var error = context.Features.Get<IExceptionHandlerFeature>()?.Error;
+
+        var result = System.Text.Json.JsonSerializer.Serialize(new
+        {
+            message = error?.Message,
+            type = error?.GetType().Name
+        });
+
+        await context.Response.WriteAsync(result);
+    });
+});
 
 app.Run();
