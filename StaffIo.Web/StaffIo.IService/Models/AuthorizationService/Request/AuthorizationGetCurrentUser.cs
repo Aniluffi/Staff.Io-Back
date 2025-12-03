@@ -1,4 +1,6 @@
-﻿namespace StaffIo.IService.Models.AuthorizationService.Request
+﻿using StaffIo.Data.Enums;
+
+namespace StaffIo.IService.Models.AuthorizationService.Request
 {
     /// <summary>
     /// модель для получения текущего пользователя
@@ -14,5 +16,7 @@
         public string Login { get; set; }
 
         public string? FotoUrl { get; set; }
+
+        public EnumUserRole Role { get; set; }
     }
 }

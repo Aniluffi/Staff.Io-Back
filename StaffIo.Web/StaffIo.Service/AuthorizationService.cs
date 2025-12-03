@@ -39,6 +39,7 @@ namespace StaffIo.Service
                     MiddleName = u.MiddleName,
                     LastName = u.LastName,
                     Login = u.Account.Login,
+                    Role = u.TypeRole,
                 }).FirstOrDefaultAsync();
 
             if (user == null)
