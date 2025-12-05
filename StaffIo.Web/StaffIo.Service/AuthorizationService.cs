@@ -40,6 +40,7 @@ namespace StaffIo.Service
                     LastName = u.LastName,
                     Login = u.Account.Login,
                     Role = u.TypeRole,
+                    AccessCanManage = u.TypeRole == EnumUserRole.Owner ? true : u.AccessCanManage,
                 }).FirstOrDefaultAsync();
 
             if (user == null)

@@ -18,6 +18,8 @@ namespace StaffIo.IService.Models.EmployeesServices
 
         public bool IsAdmin { get; set; }
 
+        public bool? AccessCanManage { get; set; }
+
         public List<EmployeeListItem> Items { get; set; }
     }
 }

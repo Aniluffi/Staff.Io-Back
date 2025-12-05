@@ -18,5 +18,7 @@ namespace StaffIo.IService.Models.AuthorizationService.Request
         public string? FotoUrl { get; set; }
 
         public EnumUserRole Role { get; set; }
+
+        public bool? AccessCanManage { get; set; }
     }
 }

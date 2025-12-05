@@ -30,19 +30,19 @@ namespace StaffIo.Service
         {
             await using var db = new DataContext(_options);
 
+            if (!await db.Users.AnyAsync(c => (c.Id == currentUserId && c.TypeRole == EnumUserRole.Admin && (c.AccessCanManage ?? false)) || c.TypeRole == EnumUserRole.Owner && c.Id == currentUserId))
+            {
+                throw new Exception("Нет доступа для уврльнения.");
+            }
+
             // Проверка, что пользователь доступен текущему
             var getAccessUserIds = await GetAccessUserIds(db, new List<Guid> { currentUserId });
+            getAccessUserIds.Add(currentUserId);
 
             var checkAccess = getAccessUserIds.Contains(request.UserId);
 
             if (!checkAccess)
                 throw new Exception("Нет доступа для удаления данного пользователя");
-
-            //проверка на права
-            if (!await db.Users.AnyAsync(c => (c.Id == currentUserId && c.TypeRole == EnumUserRole.Admin && (c.AccessCanManage ?? false)) || c.TypeRole == EnumUserRole.Owner))
-            {
-                throw new Exception("Нет доступа для увольнения.");
-            }
 
             var user = await db.Users.Where(c => c.OwnerId.HasValue && c.Id != currentUserId && c.Id == request.UserId)
                 .FirstOrDefaultAsync();
@@ -105,7 +105,7 @@ namespace StaffIo.Service
             await using var db = new DataContext(_options);
 
             //проверка на права
-            if (!await db.Users.AnyAsync(c => (c.Id == currentUserId && c.TypeRole == EnumUserRole.Admin && (c.AccessCanManage ?? false)) || c.TypeRole == EnumUserRole.Owner))
+            if (!await db.Users.AnyAsync(c => (c.Id == currentUserId && c.TypeRole == EnumUserRole.Admin && (c.AccessCanManage ?? false)) || c.TypeRole == EnumUserRole.Owner && c.Id == currentUserId))
             {
                 throw new Exception("Нет доступа для принятия.");
             }
@@ -135,6 +135,7 @@ namespace StaffIo.Service
             {
                 // Проверка, что пользователь доступен текущему
                 var getAccessUserIds = await GetAccessUserIds(db, new List<Guid> { currentUserId });
+                getAccessUserIds.Add(currentUserId);
 
                 var checkAccess = getAccessUserIds.Contains(request.UserId.Value);
 
@@ -218,6 +219,7 @@ namespace StaffIo.Service
 
             // Проверка, что пользователь доступен текущему
             var getAccessUserIds = await GetAccessUserIds(db, new List<Guid> { currentUserId });
+            getAccessUserIds.Add(currentUserId);
 
             var checkAccess = getAccessUserIds.Contains(request.UserId);
 
@@ -483,6 +485,7 @@ namespace StaffIo.Service
 
             // Проверка, что пользователь доступен текущему
             var getAccessUserIds = await GetAccessUserIds(db, new List<Guid> { currentUserId });
+            getAccessUserIds.Add(currentUserId);
 
             var checkAccessUserId = getAccessUserIds.Contains(request.UserId);
 

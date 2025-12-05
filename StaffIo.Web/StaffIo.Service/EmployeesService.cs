@@ -49,7 +49,8 @@ namespace StaffIo.Service
                     MiddleName = c.MiddleName,
                     Status = c.Status!.Value,
                     Salary = c.Salary ?? 0,
-                    IsAdmin = c.TypeRole == Data.Enums.EnumUserRole.Admin
+                    IsAdmin = c.TypeRole == Data.Enums.EnumUserRole.Admin,
+                    AccessCanManage = c.TypeRole == EnumUserRole.Owner ? true : c.AccessCanManage
                 }).ToListAsync();
 
                 foreach (var employee in getEmployeeList)
@@ -78,6 +79,7 @@ namespace StaffIo.Service
                     Status = c.Status!.Value,
                     Salary = c.Salary ?? 0,
                     IsAdmin = c.TypeRole == Data.Enums.EnumUserRole.Admin,
+                    AccessCanManage = c.TypeRole == EnumUserRole.Owner ? true : c.AccessCanManage,
                     Items = new List<EmployeeListItem>()
                 })
                 .ToListAsync();
@@ -116,6 +118,7 @@ namespace StaffIo.Service
                     Status = c.Status!.Value,
                     Salary = c.Salary ?? 0,
                     IsAdmin = c.TypeRole == Data.Enums.EnumUserRole.Admin,
+                    AccessCanManage = c.TypeRole == EnumUserRole.Owner ? true : c.AccessCanManage,
                     Items = new List<EmployeeListItem>()
                 })
                 .ToListAsync();
