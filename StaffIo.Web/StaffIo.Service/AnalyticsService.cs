@@ -70,7 +70,7 @@ namespace StaffIo.Service
             {
                 if (salary != null)
                 {
-                    var getSalary = JsonConvert.DeserializeObject<JsonHistoryValue>(salary.Value)!.Value;
+                    var getSalary = string.IsNullOrWhiteSpace(salary.Value) ? "0" : JsonConvert.DeserializeObject<JsonHistoryValue>(salary.Value)!.Value;
 
                     salary.Salary = Convert.ToDecimal(getSalary);
                 }

@@ -8,6 +8,7 @@ using StaffIo.Data.Models;
 using StaffIo.IService;
 using StaffIo.IService.Models.AdminService.Request;
 using StaffIo.IService.Models.AdminService.Response;
+using StaffIo.Service.Extensions;
 
 namespace StaffIo.Service
 {
@@ -327,7 +328,7 @@ namespace StaffIo.Service
                     {
                         Id = Guid.NewGuid(),
                         UserId = user.Id,
-                        FotoUrl = createFoto.Data!.webViewLink,
+                        FotoUrl = createFoto.Data!.id.GetUrl(),
                         DateCreated = DateTime.UtcNow,
                         FotoId = createFoto.Data!.id,
                         TypeFoto = EnumTypeFoto.Document,
@@ -432,7 +433,7 @@ namespace StaffIo.Service
                 {
                     Id = Guid.NewGuid(),
                     UserId = userId ?? createdUserId,
-                    FotoUrl = createFoto.Data!.webViewLink,
+                    FotoUrl = createFoto.Data!.id.GetUrl(),
                     DateCreated = DateTime.UtcNow,
                     FotoId = createFoto.Data!.id,
                     TypeFoto = EnumTypeFoto.Profile
@@ -462,6 +463,8 @@ namespace StaffIo.Service
 
                 if (!update.IsSusses)
                     throw new Exception(update.ErrorMessage);
+
+                getFoto.FotoUrl = update.Data!.id.GetUrl();
             }
 
             if (foto != null && userId.HasValue)

@@ -11,5 +11,7 @@ namespace StaffIo.IService.Models.HistoryService
         public string FullNameUserCreated { get; set; }
 
         public string? Value { get; set; }
+
+        public DateTime DateCreated { get; set; }
     }
 }

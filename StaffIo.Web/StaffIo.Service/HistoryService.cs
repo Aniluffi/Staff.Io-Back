@@ -30,6 +30,8 @@ namespace StaffIo.Service
             // Проверка, что пользователь доступен текущему
             var getAccessUserIds = await GetAccessUserIds(db, new List<Guid> { currentUserId });
 
+            getAccessUserIds.Add(currentUserId);
+
             var checkAccess = getAccessUserIds.Contains(request.UserId);
 
             if (!checkAccess)
@@ -42,6 +44,7 @@ namespace StaffIo.Service
                     Type = c.Type,
                     Value = c.Value,
                     c.CreatedUserId,
+                    c.DateCreated
                 }).ToListAsync();
 
             var userIds = getHistories.Select(c => c.CreatedUserId).Distinct().ToList();
@@ -50,7 +53,7 @@ namespace StaffIo.Service
                 .Select(c => new
                 {
                     c.Id,
-                    FullName = c.FirstName + (c.MiddleName ?? "") + (c.LastName ?? "")
+                    FullName = c.FirstName + " " + (c.MiddleName ?? "") + " " + (c.LastName ?? "")
                 }).ToListAsync();
 
             var getFotos = await db.Fotos.Where(c => c.TypeFoto == Data.Enums.EnumTypeFoto.Profile && userIds.Contains(c.UserId))
@@ -73,13 +76,14 @@ namespace StaffIo.Service
                     Type = history.Type,
                     Value = history.Value,
                     FullNameUserCreated = fullName ?? "&&&&&&&&&",
-                    FotoUrlUserCreated = foto
+                    FotoUrlUserCreated = foto,
+                    DateCreated = history.DateCreated
                 });
             }
 
             return new HistoryGetResponse
             {
-                Items = response,
+                Items = response.OrderByDescending(c => c.DateCreated).ToList(),
             };
         }
 
