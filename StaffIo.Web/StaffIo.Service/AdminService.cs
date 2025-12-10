@@ -298,7 +298,7 @@ namespace StaffIo.Service
 
             var files = new List<string>();
 
-            if(request.Documents.Count > 0)
+            if (request.Documents.Count > 0)
             {
                 foreach (var docoment in getDocuments)
                 {
@@ -306,22 +306,22 @@ namespace StaffIo.Service
                     {
                         fileId = docoment.FotoId,
                         fileName = docoment.FotoUrl
-                    },docoment.Id);
+                    }, docoment.Id);
                 }
 
-                foreach(var newDocument in request.Documents)
+                foreach (var newDocument in request.Documents)
                 {
                     var patch = await _fileService.Upload(new Client.Files.IService.Models.Request.UploadFileRequest
                     {
                         fileName = newDocument.Name,
                         base64 = newDocument.base64
-                    },request.UserId,EnumTypeFoto.Document,null);
+                    }, request.UserId, EnumTypeFoto.Document, null);
 
                     files.Add(patch.GetUrl());
                 }
             }
 
-            var fotoUrl = await UpdateProfileFoto(db, request.UserId, currentUserId, request.UserFoto?.base64,request.UserFoto?.Name ?? "");
+            var fotoUrl = await UpdateProfileFoto(db, request.UserId, currentUserId, request.UserFoto?.base64, request.UserFoto?.Name ?? "");
 
             await db.SaveChangesAsync();
 
@@ -374,7 +374,7 @@ namespace StaffIo.Service
             user.FirstName = request.Name;
 
             //обновление фотографии владельца
-            var fotoUrl = await UpdateProfileFoto(db, currentUserId, currentUserId, request.Foto?.base64,request.Foto?.Name ?? "");
+            var fotoUrl = await UpdateProfileFoto(db, currentUserId, currentUserId, request.Foto?.base64, request.Foto?.Name ?? "");
 
             await db.SaveChangesAsync();
 
@@ -389,7 +389,7 @@ namespace StaffIo.Service
         /// 
         /// </summary>
         /// <returns></returns>
-        private async Task<string?> UpdateProfileFoto(DataContext db, Guid userId, Guid createdUserId, string? foto,string name)
+        private async Task<string?> UpdateProfileFoto(DataContext db, Guid userId, Guid createdUserId, string? foto, string name)
         {
             var getFoto = await db.Fotos.Where(c => c.UserId == userId && c.TypeFoto == EnumTypeFoto.Profile)
                .FirstOrDefaultAsync();
@@ -407,7 +407,7 @@ namespace StaffIo.Service
                     fileName = name
                 }, userId, EnumTypeFoto.Profile, null);
             }
-            else if(getFoto != null)
+            else if (getFoto != null)
             {
                 getFoto.FotoUrl = await _fileService.Upload(new Client.Files.IService.Models.Request.UploadFileRequest
                 {
@@ -421,7 +421,7 @@ namespace StaffIo.Service
                 {
                     fileId = getFoto.FotoId,
                     fileName = getFoto.FotoUrl
-                },getFoto.Id);
+                }, getFoto.Id);
             }
 
             if (foto != null)
@@ -459,6 +459,11 @@ namespace StaffIo.Service
             if (!checkOwnerRole)
                 throw new Exception("Невозможно переместить пользователя к сотруднику.");
 
+            if (!await CheckCorrectMoveUser(db,request.OwnerId.Value,request.UserId))
+            {
+                throw new Exception("Вы не можете переместить сотрудника в его подчиненого.");
+            }
+
             var user = await db.Users
                 .FirstOrDefaultAsync(c => c.Id == request.UserId);
 
@@ -476,6 +481,28 @@ namespace StaffIo.Service
             await db.SaveChangesAsync();
 
             return true;
+        }
+
+        private async Task<bool> CheckCorrectMoveUser(DataContext data,Guid userId,Guid ownerId)
+        {
+            var getUserIds = await data.Users.Where(c => c.OwnerId == ownerId)
+                .Select(c => new
+                {
+                    c.Id,
+                    c.OwnerId
+                }).ToListAsync();
+
+            bool response = true;
+
+            foreach (var user in getUserIds)
+            {
+                if (user.Id == userId)
+                    return false;
+
+                response = await CheckCorrectMoveUser(data, userId, user.Id);
+            }
+
+            return response;
         }
     }
 }

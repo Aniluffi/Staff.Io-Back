@@ -4,6 +4,7 @@ using StaffIo.Data.Enums;
 using StaffIo.IService;
 using StaffIo.IService.Models.ExpensesService;
 using StaffIo.IService.Models.ExpensesService.Response;
+using StaffIo.Service.Extensions;
 
 namespace StaffIo.Service
 {
@@ -31,7 +32,8 @@ namespace StaffIo.Service
                     UserId = u.Id,
                     FullName = $"{u.FirstName} {u.MiddleName} {u.LastName}",
                     Salary = u.Salary.HasValue ? u.Salary.Value : 0,
-                    DatePay = DateTime.UtcNow.Date.AddMonths(1)
+                    DatePay = DateTime.UtcNow.Date.AddMonths(1),
+                    FotoUrl = u.Fotos.Where(c => c.TypeFoto == EnumTypeFoto.Profile).Select(c => c.FotoUrl.GetUrl()).FirstOrDefault()
                 })
                 .ToListAsync();
 
@@ -59,7 +61,8 @@ namespace StaffIo.Service
                     UserId = u.Id,
                     FullName = $"{u.FirstName} {u.MiddleName} {u.LastName}",
                     Salary = u.Salary.HasValue ? u.Salary.Value : 0,
-                    DatePay = DateTime.UtcNow.Date.AddMonths(1)
+                    DatePay = DateTime.UtcNow.Date.AddMonths(1),
+                    FotoUrl = u.Fotos.Where(c => c.TypeFoto == EnumTypeFoto.Profile).Select(c => c.FotoUrl.GetUrl()).FirstOrDefault()
                 })
                 .ToListAsync();
 

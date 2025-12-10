@@ -30,5 +30,7 @@ namespace StaffIo.Data.Models
         public string FotoUrl { get; set; }
 
         public Guid UserId { get; set; }
+
+        public User User { get; set; }
     }
 }

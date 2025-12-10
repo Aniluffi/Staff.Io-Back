@@ -20,6 +20,8 @@ namespace StaffIo.IService.Models.EmployeesServices
 
         public bool? AccessCanManage { get; set; }
 
+        public string? FotoUrl { get; set; }
+
         public List<EmployeeListItem> Items { get; set; }
     }
 }

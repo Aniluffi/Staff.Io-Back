@@ -30,6 +30,11 @@ namespace StaffIo.Data.Configs
 
             builder.Property(u => u.Salary)
                     .HasColumnType("decimal(18,2)");
+
+            builder.HasMany(c => c.Fotos)
+                .WithOne(c => c.User)
+                .HasForeignKey(c => c.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
 
     }

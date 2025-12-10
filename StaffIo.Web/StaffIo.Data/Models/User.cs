@@ -81,5 +81,7 @@ namespace StaffIo.Data.Models
         public Guid? OwnerId { get; set; }
 
         public User Owner { get; set; }
+
+        public List<Foto> Fotos { get; set; }
     }
 }

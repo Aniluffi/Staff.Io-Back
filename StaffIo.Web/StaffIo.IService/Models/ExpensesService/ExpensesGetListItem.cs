@@ -21,5 +21,7 @@
         /// Дата выплаты
         /// </summary>
         public DateTime DatePay { get; set; }
+
+        public string? FotoUrl { get; set; }
     }
 }

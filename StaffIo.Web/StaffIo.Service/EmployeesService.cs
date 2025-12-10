@@ -34,7 +34,7 @@ namespace StaffIo.Service
             }
             else
             {
-                var employesQueue = db.Users.Where(c => c.OwnerId == currentUserId).AsQueryable();
+                var employesQueue = db.Users.Where(c => c.Id == currentUserId).AsQueryable();
 
                 if (request.Status.HasValue)
                 {
@@ -45,13 +45,14 @@ namespace StaffIo.Service
                 {
                     UserId = c.Id,
                     FirstName = c.FirstName,
-                    LastName = c.LastName,
+                    LastName = c.LastName ?? "",
                     OwnerId = c.OwnerId,
-                    MiddleName = c.MiddleName,
-                    Status = c.Status!.Value,
+                    MiddleName = c.MiddleName ?? "",
+                    Status = c.Id == currentUserId ? EnumUserStatus.Active : c.Status!.Value,
                     Salary = c.Salary ?? 0,
-                    IsAdmin = c.TypeRole == Data.Enums.EnumUserRole.Admin,
-                    AccessCanManage = c.TypeRole == EnumUserRole.Owner ? true : c.AccessCanManage
+                    IsAdmin = c.TypeRole == Data.Enums.EnumUserRole.Admin || c.TypeRole == Data.Enums.EnumUserRole.Owner,
+                    AccessCanManage = c.TypeRole == EnumUserRole.Owner ? true : c.AccessCanManage,
+                    FotoUrl = c.Fotos.Where(c => c.TypeFoto == EnumTypeFoto.Profile).Select(c => c.FotoUrl.GetUrl()).FirstOrDefault()
                 }).ToListAsync();
 
                 foreach (var employee in getEmployeeList)
@@ -81,6 +82,7 @@ namespace StaffIo.Service
                     Salary = c.Salary ?? 0,
                     IsAdmin = c.TypeRole == Data.Enums.EnumUserRole.Admin,
                     AccessCanManage = c.TypeRole == EnumUserRole.Owner ? true : c.AccessCanManage,
+                    FotoUrl = c.Fotos.Where(c => c.TypeFoto == EnumTypeFoto.Profile).Select(c => c.FotoUrl.GetUrl()).FirstOrDefault(),
                     Items = new List<EmployeeListItem>()
                 })
                 .ToListAsync();
@@ -232,28 +234,13 @@ namespace StaffIo.Service
                     Position = u.Position,
                     AccessCanManage = u.AccessCanManage,
                     WorkPlan = u.WorkPlan,
-                    Documents = new List<string>(),
-                    UserFotoUrl = string.Empty,
+                    Documents = u.Fotos.Where(c => c.TypeFoto == EnumTypeFoto.Document).Select(c => c.FotoUrl.GetUrl()).ToList(),
+                    UserFotoUrl = u.Fotos.Where(c => c.TypeFoto == EnumTypeFoto.Profile).Select(c => c.FotoUrl.GetUrl()).FirstOrDefault(),
+                    Login = u.TypeRole == EnumUserRole.Employee ? "" : u.Account.Login
                 }).FirstOrDefaultAsync();
 
             if (user == null)
                 throw new Exception("Пользователь не найден");
-
-            var getFotoUrls = await db.Fotos
-                .Where(uf => uf.UserId == request.UserId)
-                .Select(uf => new
-                {
-                    FotoUrl = uf.FotoUrl.GetUrl(),
-                    uf.TypeFoto
-                })
-                .ToListAsync();
-
-            user.UserFotoUrl = getFotoUrls.Where(c => c.TypeFoto == EnumTypeFoto.Profile).Select(c => c.FotoUrl).FirstOrDefault();
-
-            user.Documents = getFotoUrls
-                .Where(c => c.TypeFoto == EnumTypeFoto.Document)
-                .Select(c => c.FotoUrl)
-                .ToList();
 
             return user;
         }

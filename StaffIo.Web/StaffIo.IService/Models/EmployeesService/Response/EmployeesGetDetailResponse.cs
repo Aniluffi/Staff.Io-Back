@@ -38,6 +38,8 @@ namespace StaffIo.IService.Models.EmployeesServices.Response
         // Оклад/Зарплата
         public decimal Salary { get; set; }
 
+        public string? Login { get; set; }
+
         // Рабочий план (нуль-допускающий)
         // Тип перечисления, основанный на диаграмме
         public EnumWorkPlan? WorkPlan { get; set; }
