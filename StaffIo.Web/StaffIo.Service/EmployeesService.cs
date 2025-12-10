@@ -317,7 +317,7 @@ namespace StaffIo.Service
 
             user.Documents = getFotoUrls
                 .Where(c => c.TypeFoto == EnumTypeFoto.Document)
-                .Select(c => c.FotoUrl.GetUrl())
+                .Select(c => c.FotoUrl)
                 .ToList();
 
             return user;
