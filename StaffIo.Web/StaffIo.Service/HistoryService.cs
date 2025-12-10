@@ -5,15 +5,16 @@ using StaffIo.IService;
 using StaffIo.IService.Models.HistoryService;
 using StaffIo.IService.Models.HistoryService.Request;
 using StaffIo.IService.Models.HistoryService.Response;
+using StaffIo.Service.Extensions;
 
 namespace StaffIo.Service
 {
     public class HistoryService : IHistoryService
     {
         private DbContextOptions<DataContext> _options;
-        private IFileService _fileService;
+        private IFileB2Service _fileService;
 
-        public HistoryService(DbContextOptions<DataContext> options, IFileService fileService)
+        public HistoryService(DbContextOptions<DataContext> options, IFileB2Service fileService)
         {
             _options = options;
             _fileService = fileService;
@@ -76,7 +77,7 @@ namespace StaffIo.Service
                     Type = history.Type,
                     Value = history.Value,
                     FullNameUserCreated = fullName ?? "&&&&&&&&&",
-                    FotoUrlUserCreated = foto,
+                    FotoUrlUserCreated = foto.GetUrl(),
                     DateCreated = history.DateCreated
                 });
             }

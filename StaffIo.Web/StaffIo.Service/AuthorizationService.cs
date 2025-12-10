@@ -5,6 +5,7 @@ using StaffIo.Data.Models;
 using StaffIo.IService;
 using StaffIo.IService.Models.AuthorizationService.Request;
 using StaffIo.Service.Common;
+using StaffIo.Service.Extensions;
 
 namespace StaffIo.Service
 {
@@ -48,7 +49,7 @@ namespace StaffIo.Service
 
             var getFotoUrl = await db.Fotos
                 .Where(uf => uf.UserId == currentUserId && uf.TypeFoto == EnumTypeFoto.Profile)
-                .Select(uf => uf.FotoUrl)
+                .Select(uf => uf.FotoUrl.GetUrl())
                 .FirstOrDefaultAsync();
 
             user.FotoUrl = getFotoUrl;

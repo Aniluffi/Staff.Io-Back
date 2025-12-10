@@ -1,15 +1,14 @@
 ﻿using StaffIo.Data.Enums;
-using StaffIo.IService.Models.EmployeesServices.Response;
 
 namespace StaffIo.IService.Models.AdminService.Request
 {
-    public class AdminUpdateRequest 
+    public class AdminUpdateRequest
     {
         // Уникальный идентификатор пользователя
         public Guid UserId { get; set; }
 
         // URL-адрес фотографии пользователя (нуль-допускающий)
-        public string? UserFoto { get; set; }
+        public FotoItem? UserFoto { get; set; }
 
         // Имя
         public string FirstName { get; set; } = string.Empty;
@@ -21,7 +20,7 @@ namespace StaffIo.IService.Models.AdminService.Request
         public string MiddleName { get; set; } = string.Empty;
 
         // Список URL-адресов или идентификаторов документов
-        public List<string> Documents { get; set; } = new List<string>();
+        public List<FotoItem> Documents { get; set; } = new List<FotoItem>();
 
         // Должность (нуль-допускающий)
         public string? Position { get; set; }

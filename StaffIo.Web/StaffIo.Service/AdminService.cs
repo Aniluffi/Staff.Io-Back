@@ -15,9 +15,9 @@ namespace StaffIo.Service
     public class AdminService : IAdminService
     {
         private DbContextOptions<DataContext> _options;
-        private IFileService _fileService;
+        private IFileB2InternalService _fileService;
 
-        public AdminService(DbContextOptions<DataContext> options, IFileService fileService)
+        public AdminService(DbContextOptions<DataContext> options, IFileB2InternalService fileService)
         {
             _fileService = fileService;
             _options = options;
@@ -296,55 +296,32 @@ namespace StaffIo.Service
 
             var getDocuments = await db.Fotos.Where(c => c.TypeFoto == EnumTypeFoto.Document).ToListAsync();
 
-            var files = new List<Foto>();
+            var files = new List<string>();
 
-            if (request.Documents.Count > 0)
+            if(request.Documents.Count > 0)
             {
-                foreach (var document in getDocuments)
+                foreach (var docoment in getDocuments)
                 {
-                    var delete = await _fileService.DeleteFile(new Client.Files.IService.Models.Request.DeleteFileRequest
+                    await _fileService.Delete(new Client.Files.IService.Models.Request.DeleteFileVersionRequest
                     {
-                        id = document.FotoId,
-                    });
-
-                    if (!delete.IsSusses)
-                        throw new Exception(delete.ErrorMessage);
+                        fileId = docoment.FotoId,
+                        fileName = docoment.FotoUrl
+                    },docoment.Id);
                 }
 
-                db.Fotos.RemoveRange(getDocuments);
-
-                foreach (var document in request.Documents)
+                foreach(var newDocument in request.Documents)
                 {
-                    var createFoto = await _fileService.CreateFile(new Client.Files.IService.Models.Request.CreateFileRequest
+                    var patch = await _fileService.Upload(new Client.Files.IService.Models.Request.UploadFileRequest
                     {
-                        File = Convert.FromBase64String(document),
-                        name = $"{Guid.NewGuid()}",
-                    });
+                        fileName = newDocument.Name,
+                        base64 = newDocument.base64
+                    },request.UserId,EnumTypeFoto.Document,null);
 
-                    if (!createFoto.IsSusses)
-                        throw new Exception(createFoto.ErrorMessage);
-
-                    files.Add(new Foto
-                    {
-                        Id = Guid.NewGuid(),
-                        UserId = user.Id,
-                        FotoUrl = createFoto.Data!.id.GetUrl(),
-                        DateCreated = DateTime.UtcNow,
-                        FotoId = createFoto.Data!.id,
-                        TypeFoto = EnumTypeFoto.Document,
-                    });
+                    files.Add(patch.GetUrl());
                 }
-
-                await db.Fotos.AddRangeAsync(files);
-
-                await AddHistory(db, EnumTypeHistory.ChangeFotoDocuments, new JsonHistoryValue
-                {
-                    Values = files.Select(c => c.FotoUrl).ToList(),
-                }, user.Id, currentUserId);
             }
 
-            //удаление старой фотографии пользователя и добавление новой
-            var fotoUrl = await UpdateProfileFoto(db, request.UserId, currentUserId, request.UserFoto);
+            var fotoUrl = await UpdateProfileFoto(db, request.UserId, currentUserId, request.UserFoto?.base64,request.UserFoto?.Name ?? "");
 
             await db.SaveChangesAsync();
 
@@ -357,8 +334,8 @@ namespace StaffIo.Service
                 Position = user.Position,
                 Salary = user.Salary ?? 0,
                 WorkPlan = user.WorkPlan,
-                Documents = files.Select(c => c.FotoUrl).ToList(),
-                UserFotoUrl = fotoUrl,
+                Documents = files,
+                UserFotoUrl = fotoUrl.GetUrl(),
                 AccessCanManage = user.AccessCanManage,
                 Status = user.Status!.Value,
                 TypeRole = user.TypeRole,
@@ -397,14 +374,13 @@ namespace StaffIo.Service
             user.FirstName = request.Name;
 
             //обновление фотографии владельца
-
-            var fotoUrl = await UpdateProfileFoto(db, null, currentUserId, request.Foto);
+            var fotoUrl = await UpdateProfileFoto(db, currentUserId, currentUserId, request.Foto?.base64,request.Foto?.Name ?? "");
 
             await db.SaveChangesAsync();
 
             return new AdminUpdateOwnerResponse
             {
-                Foto = fotoUrl,
+                Foto = fotoUrl.GetUrl(),
                 Name = user.FirstName,
             };
         }
@@ -413,65 +389,46 @@ namespace StaffIo.Service
         /// 
         /// </summary>
         /// <returns></returns>
-        private async Task<string?> UpdateProfileFoto(DataContext db, Guid? userId, Guid createdUserId, string? foto)
+        private async Task<string?> UpdateProfileFoto(DataContext db, Guid userId, Guid createdUserId, string? foto,string name)
         {
             var getFoto = await db.Fotos.Where(c => c.UserId == userId && c.TypeFoto == EnumTypeFoto.Profile)
                .FirstOrDefaultAsync();
 
+            if (string.IsNullOrWhiteSpace(foto) || string.IsNullOrWhiteSpace(name))
+                return getFoto?.FotoUrl ?? "";
+
             if (getFoto == null && foto != null)
             {
-                var createFoto = await _fileService.CreateFile(new Client.Files.IService.Models.Request.CreateFileRequest
+                getFoto = new Foto();
+
+                getFoto.FotoUrl = await _fileService.Upload(new Client.Files.IService.Models.Request.UploadFileRequest
                 {
-                    File = Convert.FromBase64String(foto),
-                    name = $"{Guid.NewGuid()}",
-                });
-
-                if (!createFoto.IsSusses)
-                    throw new Exception(createFoto.ErrorMessage);
-
-                getFoto = new Data.Models.Foto
+                    base64 = foto,
+                    fileName = name
+                }, userId, EnumTypeFoto.Profile, null);
+            }
+            else if(getFoto != null)
+            {
+                getFoto.FotoUrl = await _fileService.Upload(new Client.Files.IService.Models.Request.UploadFileRequest
                 {
-                    Id = Guid.NewGuid(),
-                    UserId = userId ?? createdUserId,
-                    FotoUrl = createFoto.Data!.id.GetUrl(),
-                    DateCreated = DateTime.UtcNow,
-                    FotoId = createFoto.Data!.id,
-                    TypeFoto = EnumTypeFoto.Profile
-                };
-
-                await db.Fotos.AddAsync(getFoto);
+                    base64 = foto,
+                    fileName = name
+                }, userId, EnumTypeFoto.Profile, getFoto.Id);
             }
             else if (foto == null && getFoto != null)
             {
-                var delete = await _fileService.DeleteFile(new Client.Files.IService.Models.Request.DeleteFileRequest
+                await _fileService.Delete(new Client.Files.IService.Models.Request.DeleteFileVersionRequest
                 {
-                    id = getFoto.FotoId,
-                });
-
-                if (!delete.IsSusses)
-                    throw new Exception(delete.ErrorMessage);
-
-                db.Fotos.Remove(getFoto);
-            }
-            else if (foto != null && getFoto != null)
-            {
-                var update = await _fileService.UpdateFile(new Client.Files.IService.Models.Request.UpdateFileRequest
-                {
-                    Id = getFoto.FotoId,
-                    File = Convert.FromBase64String(foto),
-                });
-
-                if (!update.IsSusses)
-                    throw new Exception(update.ErrorMessage);
-
-                getFoto.FotoUrl = update.Data!.id.GetUrl();
+                    fileId = getFoto.FotoId,
+                    fileName = getFoto.FotoUrl
+                },getFoto.Id);
             }
 
-            if (foto != null && userId.HasValue)
+            if (foto != null)
                 await AddHistory(db, EnumTypeHistory.ChangeFotoProfile, new JsonHistoryValue
                 {
                     Value = getFoto?.FotoUrl,
-                }, userId.Value, createdUserId);
+                }, userId, createdUserId);
 
             return getFoto == null ? null : getFoto.FotoUrl;
         }

@@ -4,9 +4,9 @@ namespace StaffIo.Service.Extensions
 {
     public static class FotoExtensions
     {
-        public static string GetUrl(this string fotoId)
+        public static string GetUrl(this string fotoPatch)
         {
-            return string.Format(FotoConstans.BaseFotoUrl , fotoId);
+            return FotoConstans.BaseFotoUrl + "/" + fotoPatch;
         }
     }
 }

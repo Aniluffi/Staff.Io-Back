@@ -50,6 +50,7 @@ builder.Services.AddTransient<StaffIo.IService.IExpensesService, ExpensesService
 builder.Services.AddTransient<StaffIo.IService.IAnalyticsService, AnalyticsService>();
 builder.Services.AddTransient<IEmployeesService,EmployeesService>();
 builder.Services.AddTransient<IHistoryService,HistoryService>();
+builder.Services.AddTransient<IFileB2InternalService, FileB2InternalService>();
 
 builder.Services.AddTransient<IAdminService, AdminService>();
 

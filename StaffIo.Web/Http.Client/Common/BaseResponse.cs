@@ -15,6 +15,11 @@
         {
         }
 
+        public BaseResponse(T data)
+        {
+            Data = data;
+        }
+
         public bool IsSusses 
         { 
             get

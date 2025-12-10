@@ -13,11 +13,10 @@ namespace Client.Files.Extensions
         {
             services.AddHttpClient();
 
-            services.Configure<GoogleAuthOptions>(configuration.GetSection(nameof(GoogleAuthOptions)));
+            services.Configure<BackBazeB2Options>(configuration.GetSection(nameof(BackBazeB2Options)));
 
-            services.AddTransient<IFileService, FileService>();
-
-            services.AddTransient<GoogleAuth>();
+            services.AddTransient<IBackblazeAuthService, BackblazeAuthService>();
+            services.AddTransient<IFileB2Service, FileB2Service>();
         }
     }
 }

@@ -2,6 +2,6 @@
 {
     public class FotoConstans
     {
-        public const string BaseFotoUrl = "https://drive.google.com/file/d/{0}/view"; 
+        public const string BaseFotoUrl = "https://staffiofiles.s3.eu-central-003.backblazeb2.com"; 
     }
 }

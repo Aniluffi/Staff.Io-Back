@@ -8,6 +8,6 @@ namespace Http.Client.IService
     /// </summary>
     public interface IHttpClient
     {
-        Task<BaseResponse<TResponse>> SendAsync<TResponse, TRequest>(string method, HttpMethod httpMethod, TRequest request, byte[]? file = null);
+        Task<BaseResponse<TResponse>> SendAsync<TResponse, TRequest>(string method, HttpMethod httpMethod, TRequest request);
     }
 }

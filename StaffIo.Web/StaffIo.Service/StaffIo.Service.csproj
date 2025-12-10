@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Client.Files.v3\Client.Files.csproj" />
     <ProjectReference Include="..\StaffIo.IService\StaffIo.IService.csproj" />
   </ItemGroup>
 

@@ -5,6 +5,7 @@ using StaffIo.IService;
 using StaffIo.IService.Models.EmployeesServices;
 using StaffIo.IService.Models.EmployeesServices.Request;
 using StaffIo.IService.Models.EmployeesServices.Response;
+using StaffIo.Service.Extensions;
 
 namespace StaffIo.Service
 {
@@ -242,7 +243,7 @@ namespace StaffIo.Service
                 .Where(uf => uf.UserId == request.UserId)
                 .Select(uf => new
                 {
-                    uf.FotoUrl,
+                    FotoUrl = uf.FotoUrl.GetUrl(),
                     uf.TypeFoto
                 })
                 .ToListAsync();
@@ -307,7 +308,7 @@ namespace StaffIo.Service
                 .Where(uf => uf.UserId == currentUserId)
                 .Select(uf => new
                 {
-                    uf.FotoUrl,
+                    FotoUrl = uf.FotoUrl.GetUrl(),
                     uf.TypeFoto
                 })
                 .ToListAsync();
@@ -316,7 +317,7 @@ namespace StaffIo.Service
 
             user.Documents = getFotoUrls
                 .Where(c => c.TypeFoto == EnumTypeFoto.Document)
-                .Select(c => c.FotoUrl)
+                .Select(c => c.FotoUrl.GetUrl())
                 .ToList();
 
             return user;
