@@ -1,4 +1,5 @@
 ﻿using StaffIo.Service.Constans;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace StaffIo.Service.Extensions
 {
@@ -6,7 +7,7 @@ namespace StaffIo.Service.Extensions
     {
         public static string GetUrl(this string fotoPatch)
         {
-            return FotoConstans.BaseFotoUrl + "/" + fotoPatch;
+            return FotoConstans.BaseFotoUrl + "/" + fotoPatch + "?t=" + DateTime.Now;
         }
     }
 }

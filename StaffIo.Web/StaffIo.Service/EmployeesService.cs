@@ -122,6 +122,7 @@ namespace StaffIo.Service
                     Salary = c.Salary ?? 0,
                     IsAdmin = c.TypeRole == Data.Enums.EnumUserRole.Admin,
                     AccessCanManage = c.TypeRole == EnumUserRole.Owner ? true : c.AccessCanManage,
+                    FotoUrl = c.Fotos.Where(c => c.TypeFoto == EnumTypeFoto.Profile).Select(c => c.FotoUrl.GetUrl()).FirstOrDefault(),
                     Items = new List<EmployeeListItem>()
                 })
                 .ToListAsync();
